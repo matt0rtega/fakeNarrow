@@ -1,0 +1,163 @@
+import ddf.minim.*;
+import ddf.minim.analysis.*;
+
+Minim minim;
+AudioPlayer song;
+AudioInput in;
+BeatDetect beat;
+FFT fft;
+
+Walker walker;
+Walker walker2;
+
+int gridStep = 10;
+int w, h;
+
+Walker[][] walkersGrid = new Walker[gridStep][gridStep];
+Walker[] walkers = new Walker[5];
+
+PImage img;
+
+/*
+TODO :
+ - Proper sound mapping
+ -
+ */
+void setup() {
+  size(500, 500, P3D);
+  //fullScreen(P3D);
+
+  img = loadImage("img2.jpg");
+  img.resize(width, height);
+
+  minim = new Minim(this);
+  // a beat detection object song SOUND_ENERGY mode with a sensitivity of 10 milliseconds
+  beat = new BeatDetect();
+  // use the getLineIn method of the Minim object to get an AudioInput
+  in = minim.getLineIn();
+
+  song = minim.loadFile("clav.mp3", 2048);
+  song.play();
+  song.loop();
+
+  fft = new FFT( in.bufferSize(), in.sampleRate() );
+  walker = new Walker(0, width, height, 0);
+  walker2 = new Walker(0, width, height, 0);
+
+  w = width/gridStep;
+  h = height/gridStep;
+
+  for (int i=0; i<gridStep; i++) {
+    for (int j=0; j<gridStep; j++) {
+      walkersGrid[i][j] = new Walker(0, w, h, i + j);
+    }
+  }
+
+  for (int i=0; i<5; i++) {
+    walkers[i] = new Walker(0, width, height, i);
+  }
+}
+
+void draw() {
+
+  fft.forward(song.mix);
+  beat.detect(song.mix);
+
+  hint(ENABLE_DEPTH_TEST);
+
+  //background(255);
+
+  noStroke();
+  fill(0, map(mouseX, 0, width, 0, 50));
+  rect(0, 0, width, height);
+
+  hint(DISABLE_DEPTH_TEST);
+
+  lights();
+  directionalLight(255, 0, 255, 0, 1.0, 0);
+
+  pushMatrix();
+  translate(width/2, height/2);
+  //walker.run();
+  //walker.randomSteps();
+  //walker.detectBeat(beat.isOnset());
+
+  //scene1();
+
+
+  popMatrix();
+
+  //scene2();
+  scene3();
+
+  //if (frameCount % 200 == 0) walker.resetPoints();
+  //if (frameCount % 402 == 0) walker2.resetPoints();
+
+  //if (beat.isOnset() && random(1) < 0.2) {
+  //  resetScene();
+  //}
+}
+
+void scene1() {
+  walker2.run();
+  walker2.drawCircles();
+  walker2.randomSteps(50);
+  walker2.connectPoints(img);
+  walker2.display(img);
+  walker2.detectBeat(beat.isOnset());
+}
+
+void scene2() {
+  pushMatrix();
+  translate(width/2, height/2);
+  for (int i=0; i<walkers.length; i++) {
+    walkers[i].run();
+    walkers[i].randomSteps(50);
+    walkers[i].drawCircles();
+    walkers[i].rotateScene();
+    walkers[i].display(img);
+    walkers[i].connectPoints(img);
+    walkers[i].detectBeat(beat.isOnset());
+  }
+  popMatrix();
+}
+
+void scene3() {
+  pushMatrix();
+  translate(50, 50);
+  for (int i=0; i<gridStep; i++) {
+    for (int j=0; j<gridStep; j++) {
+      pushMatrix();
+      translate((i*w), j*h);
+      walkersGrid[i][j].run();
+      walkersGrid[i][j].constrainPoints();
+      walkersGrid[i][j].drawCircles();
+      walkersGrid[i][j].display(img);
+      walkersGrid[i][j].randomSteps(20);
+      walkersGrid[i][j].detectBeat(beat.isOnset());
+      popMatrix();
+    }
+  }
+  popMatrix();
+
+  println(walkersGrid[0][0].points.size());
+}
+
+void mousePressed() {
+  resetScene();
+}
+
+void resetScene() {
+  walker.resetPoints();
+  walker2.resetPoints();
+
+  for (int i=0; i<walkers.length; i++) {
+    walkers[i].resetPoints();
+  }
+
+  for (int i=0; i<gridStep; i++) {
+    for (int j=0; j<gridStep; j++) {
+      walkersGrid[i][j].resetPoints();
+    }
+  }
+}
