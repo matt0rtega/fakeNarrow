@@ -51,7 +51,7 @@ class ControlFrame extends PApplet {
           .plugTo(parent, "myAudioIndexStep")
           .setRange(0, 1)
           .setValue(0.01)
-          .setPosition(20, 120)
+          .setPosition(20, 140)
           .setSize(200, 30);
     //
     // cp5.addKnob("blend")
