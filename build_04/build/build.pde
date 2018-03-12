@@ -17,7 +17,7 @@ int myAudioMax = 100;
 float myAudioAmp = 75.0;
 float myAudioIndex = 0.05;
 float myAudioIndexAmp = myAudioIndex;
-float myAudioIndexStep = 0.25;
+float myAudioIndexStep = 0.5;
 
 float[] fftAmp = new float[myAudioRange];
 
@@ -54,6 +54,7 @@ SyphonServer server;
 // *************************************************************************************************************
 
 ArrayList<SoundRect> rects;
+ArrayList<Particle> particles;
 
 Scene1 scene1;
 Scene2 scene2;
@@ -64,6 +65,8 @@ PImage img;
 int time;
 
 PShader fade;
+
+PGraphics pg;
 
 /*
 TODO :
@@ -86,6 +89,8 @@ void setup() {
 
   img = loadImage("img2.jpg");
   img.resize(width, height);
+  
+  pg = createGraphics(width, height, P3D);
 
   minim = new Minim(this);
   // a beat detection object song SOUND_ENERGY mode with a sensitivity of 10 milliseconds
@@ -97,11 +102,11 @@ void setup() {
   server = new SyphonServer(this, "Processing Syphon");
 
   // missing upper bands
-  song = minim.loadFile("clav-16.wav");
-  song.play();
-  song.loop();
+  //song = minim.loadFile("clav-16.wav");
+  //song.play();
+  //song.loop();
 
-  fft = new FFT( song.bufferSize(), song.sampleRate() );
+  fft = new FFT( in.bufferSize(), in.sampleRate() );
   fft.linAverages(myAudioRange);
   fft.window(FFT.HAMMING);
 
@@ -110,6 +115,7 @@ void setup() {
   scene3 = new Scene3();
 
   rects = new ArrayList<SoundRect>();
+  particles = new ArrayList<Particle>();
 
   fade = loadShader("fade.glsl");
 }
@@ -123,8 +129,8 @@ void draw() {
 
   time = int(millis() * 0.0833);
 
-  fft.forward(song.mix);
-  beat.detect(song.mix);
+  fft.forward(in.mix);
+  beat.detect(in.mix);
 
   hint(ENABLE_DEPTH_TEST);
 
@@ -137,6 +143,13 @@ void draw() {
   scene1.run();
   //scene2.display();
   //scene3.display();
+  
+  //pg.beginDraw();
+  //pg.fill(fftAmp[3]);
+  //pg.rect(0, 0, 100, 100);
+  //pg.endDraw();
+  
+  //image(pg, 0, 0);
 
   server.sendScreen();
 }

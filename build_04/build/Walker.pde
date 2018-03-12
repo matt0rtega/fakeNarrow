@@ -116,7 +116,7 @@ class Walker {
       if(mode == 0){
         curveVertex(p.x + offsetx, p.y + offsety, p.z);
       } else {
-        curveVertex(p.x + offsetx, p.y + offsety, p.z);
+        vertex(p.x + offsetx, p.y + offsety, p.z);
       }
 
       i++;
@@ -189,30 +189,6 @@ class Walker {
     if(points.size() < 100){
       points.add(new PVector(x, y, z));
     }
-  }
-
-  void drawCircles(){
-    pushMatrix();
-
-    // Every n points add a circle
-    int j=0;
-    for (PVector p : points){
-      if(j % 10 == 0){
-
-        float size = map(fft.getAvg(j % myAudioRange), 0, myAudioMax, 0, 500);
-
-        pushMatrix();
-        noFill();
-        stroke(255, 0, 0);
-        strokeWeight(0.7);
-        translate(p.x, p.y, p.z);
-        ellipse(0, 0, size, size);
-        popMatrix();
-      }
-      j++;
-    }
-
-    popMatrix();
   }
 
   void connectPoints(PImage tempimg){

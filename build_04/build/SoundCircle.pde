@@ -34,8 +34,9 @@ class SoundCircle {
         for(int i=0; i<3; i++){
           float offset = (i * band * 0.5);
 
-          if(offset > 5) {
+          if(band > 50) {
             rects.add(new SoundRect(p.x, p.y, p.z + offset, offset));
+            particles.add(new Particle(p.x, p.y, p.z));
           }
 
           pushMatrix();
